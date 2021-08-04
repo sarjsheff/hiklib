@@ -1,3 +1,4 @@
+//
 #include <stdio.h>
 
 #include <cstring>
@@ -313,7 +314,7 @@ int HSaveFile(int userId, char *srcfile, char *destfile)
   {
     if (lastpos != pos)
     {
-      printf("%d%\r", pos);
+      printf("%d\r", pos);
       fflush(stdout);
       lastpos = pos;
     }
