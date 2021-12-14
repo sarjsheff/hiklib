@@ -198,7 +198,7 @@ int HListVideo(int lUserID, struct MotionVideos *videos)
   time_t tt = system_clock::to_time_t(now);
   tm local_tm = *localtime(&tt);
 
-  printf("%d\n", local_tm.tm_year);
+  // printf("%d\n", local_tm.tm_year);
 
   NET_DVR_FILECOND_V50 m_struFileCondV50;
   memset(&m_struFileCondV50, 0, sizeof(NET_DVR_FILECOND_V50));
@@ -230,12 +230,20 @@ int HListVideo(int lUserID, struct MotionVideos *videos)
   NET_DVR_FINDDATA_V50 struFileData;
 
   int count = 0;
+  int trycount = 100;
   while (true)
   {
     int result = NET_DVR_FindNextFile_V50(lFindHandle, &struFileData);
     if (result == NET_DVR_ISFINDING)
     {
-      continue;
+      trycount--;
+      if (trycount > 0) {
+        printf("Try.\n");
+        continue;
+      } else {
+        printf("Try count is 0.\n");
+        break;
+      }
     }
     else if (result == NET_DVR_FILE_SUCCESS)
     {
