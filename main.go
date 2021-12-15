@@ -220,5 +220,5 @@ func HikSaveFile(userId int, srcfile string, destfile string) int {
 
 // HikFormatDisk - format disks
 func HikFormatDisk(user int, disk int) int {
-	return C.HFormatDisk(C.int(user), C.int(disk))
+	return int(C.HFormatDisk(C.int(user), C.int(disk)))
 }
