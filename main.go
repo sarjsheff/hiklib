@@ -217,3 +217,8 @@ func HikListVideo(lUserID int) (int, MotionVideos) {
 func HikSaveFile(userId int, srcfile string, destfile string) int {
 	return int(C.HSaveFile(C.int(userId), C.CString(srcfile), C.CString(destfile)))
 }
+
+// HikFormatDisk - format disks
+func HikFormatDisk(user int, disk int) int {
+	return C.HFormatDisk(C.int(user), C.int(disk))
+}

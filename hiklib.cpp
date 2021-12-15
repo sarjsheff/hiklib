@@ -230,7 +230,7 @@ int HListVideo(int lUserID, struct MotionVideos *videos)
   NET_DVR_FINDDATA_V50 struFileData;
 
   int count = 0;
-  int trycount = 100;
+  int trycount = 10000;
   while (true)
   {
     int result = NET_DVR_FindNextFile_V50(lFindHandle, &struFileData);
@@ -238,7 +238,6 @@ int HListVideo(int lUserID, struct MotionVideos *videos)
     {
       trycount--;
       if (trycount > 0) {
-        printf("Try.\n");
         continue;
       } else {
         printf("Try count is 0.\n");
@@ -348,4 +347,8 @@ int HSaveFile(int userId, char *srcfile, char *destfile)
   {
     return 0;
   }
+}
+
+int HFormatDisk(int userID,int disk) {
+  return NET_DVR_FormatDisk(userID,disk);
 }
