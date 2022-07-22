@@ -17,16 +17,16 @@ unsigned int HVersion(char *ret)
   return uiVersion;
 }
 
-int HLogin(char *ip, char *username, char *password, struct DevInfo *devinfo)
+int HLogin(char *ip, int port, char *username, char *password, struct DevInfo *devinfo)
 {
-  char logPath[11] = "./sdkLog.v";
   NET_DVR_Init();
-  NET_DVR_SetLogToFile(0, logPath);
+  NET_DVR_SetLogPrint(true);
+  NET_DVR_SetLogPrintAction(5, 1, 0, 0, 0);
   NET_DVR_USER_LOGIN_INFO struLoginInfo = {0};
   NET_DVR_DEVICEINFO_V40 struDeviceInfoV40 = {0};
   struLoginInfo.bUseAsynLogin = false;
 
-  struLoginInfo.wPort = 8000;
+  struLoginInfo.wPort = port;
   memcpy(struLoginInfo.sDeviceAddress, ip, NET_DVR_DEV_ADDRESS_MAX_LEN);
   memcpy(struLoginInfo.sUserName, username, NAME_LEN);
   memcpy(struLoginInfo.sPassword, password, NAME_LEN);
@@ -36,12 +36,16 @@ int HLogin(char *ip, char *username, char *password, struct DevInfo *devinfo)
   if (lUserID < 0)
   {
     int err = NET_DVR_GetLastError();
-    printf("\n\nError %d\n\n", err);
+    printf("\n\nError %d\n%s\n\n", err, NET_DVR_GetErrorMsg(&err));
     NET_DVR_Cleanup();
     return 0 - err;
   }
 
+  devinfo->byZeroChanNum = struDeviceInfoV40.struDeviceV30.byZeroChanNum;
   devinfo->byStartChan = struDeviceInfoV40.struDeviceV30.byStartChan;
+  devinfo->byChanNum = struDeviceInfoV40.struDeviceV30.byChanNum;
+  devinfo->byStartDChan = struDeviceInfoV40.struDeviceV30.byStartDChan;
+  devinfo->byDChanNum = struDeviceInfoV40.struDeviceV30.byHighDChanNum * 256 + struDeviceInfoV40.struDeviceV30.byIPChanNum;
 
   return lUserID;
 }
@@ -102,7 +106,10 @@ int HCaptureImage(int lUserID, int byStartChan, char *imagePath)
   iRet = NET_DVR_CaptureJPEGPicture(lUserID, byStartChan, &strPicPara, imagePath);
   if (!iRet)
   {
-    return 0 - NET_DVR_GetLastError();
+    int err = NET_DVR_GetLastError();
+    printf("\n\nError %d\n%s\n\n", err, NET_DVR_GetErrorMsg(&err));
+    NET_DVR_Cleanup();
+    return 0 - err;
   }
   return iRet;
 }
