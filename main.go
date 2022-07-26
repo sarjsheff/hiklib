@@ -30,7 +30,11 @@ import (
 )
 
 type DevInfo struct {
+	ByZeroChanNum int
 	ByStartChan int
+	ByChanNum int
+	ByStartDChan int
+	ByDChanNum int
 }
 
 type MotionVideos struct {
@@ -134,11 +138,17 @@ func HikVersion() string {
 }
 
 // HikLogin - connect and login to camera
-func HikLogin(ip, user, pass string) (int, DevInfo) {
+func HikLogin(ip string, port int, user, pass string) (int, DevInfo) {
 	// var user = C.int(-1)
 	var dev = C.DevInfo{byStartChan: 0}
-	u := C.HLogin(C.CString(ip), C.CString(user), C.CString(pass), &dev)
-	return int(u), DevInfo{ByStartChan: int(dev.byStartChan)}
+	u := C.HLogin(C.CString(ip), C.int(port), C.CString(user), C.CString(pass), &dev)
+	return int(u), DevInfo{
+		ByZeroChanNum: int(dev.byZeroChanNum),
+		ByStartChan: int(dev.byStartChan),
+		ByChanNum: int(dev.byChanNum),
+		ByStartDChan: int(dev.byStartDChan),
+		ByDChanNum: int(dev.byDChanNum),
+	}
 }
 
 // HikLogout - disconnect from camera

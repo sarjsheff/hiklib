@@ -8,7 +8,11 @@ extern "C"
 
   typedef struct DevInfo
   {
+    int byZeroChanNum;
     int byStartChan;
+    int byChanNum;
+    int byStartDChan;
+    int byDChanNum;  // low byte byIPChanNum, high byte byHighDChanNum
   } DevInfo;
 
   typedef struct MotionVideo
@@ -49,7 +53,7 @@ extern "C"
   } MotionAreas;
 
   unsigned int HVersion(char *ret);
-  int HLogin(char *ip, char *username, char *password, struct DevInfo *devinfo);
+  int HLogin(char *ip, int port, char *username, char *password, struct DevInfo *devinfo);
   void HLogout(int lUserID);
   int HMotionArea(int lUserID, struct MotionAreas *areas);
   int HCaptureImage(int lUserID, int byStartChan, char *imagePath);
