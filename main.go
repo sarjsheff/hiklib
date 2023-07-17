@@ -162,10 +162,10 @@ func HikLogout(user int) {
 	C.HLogout(C.int(user))
 }
 
-// int HMotionArea(int lUserID, struct MotionAreas *areas);
-func HikMotionArea(lUserID int) (int, MotionAreas) {
+// HMotionArea - motion area.
+func HikMotionArea(lUserID int, chno int) (int, MotionAreas) {
 	var ma = C.MotionAreas{}
-	ret := C.HMotionArea(C.int(lUserID), &ma)
+	ret := C.HMotionArea(C.int(lUserID), &ma, C.int(chno))
 
 	mma := MotionAreas{}
 	for i := 0; i < 8; i++ {
@@ -180,7 +180,7 @@ func HikMotionArea(lUserID int) (int, MotionAreas) {
 	return int(ret), mma
 }
 
-// int HCaptureImage(int lUserID, int byStartChan, char *imagePath);
+// HCaptureImage - capture image
 func HikCaptureImage(user int, byStartChan int, imagePath string) int {
 	return int(C.HCaptureImage(C.int(user), C.int(byStartChan), C.CString(imagePath)))
 }
@@ -202,10 +202,10 @@ func HikReboot(user int) int {
 	return int(C.HReboot(C.int(user)))
 }
 
-// int HListVideo(int lUserID, struct MotionVideos *videos);
-func HikListVideo(lUserID int) (int, MotionVideos) {
+// HListVideo - list video
+func HikListVideo(lUserID int, chno int) (int, MotionVideos) {
 	v := C.MotionVideos{}
-	ret := C.HListVideo(C.int(lUserID), &v)
+	ret := C.HListVideo(C.int(lUserID), &v, C.int(chno))
 	vv := MotionVideos{}
 	vv.Count = int(v.count)
 	for i := 0; i < int(v.count); i++ {

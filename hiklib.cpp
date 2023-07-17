@@ -9,6 +9,12 @@
 
 using namespace std::chrono;
 
+int error(const char *errmsg) {
+  int err = NET_DVR_GetLastError();
+  printf("[ERR] %s: [%d] %s\n", errmsg,err, NET_DVR_GetErrorMsg(&err));
+  return err;
+}
+
 unsigned int HVersion(char *ret)
 {
   NET_DVR_Init();
@@ -35,8 +41,7 @@ int HLogin(char *ip, int port, char *username, char *password, struct DevInfo *d
 
   if (lUserID < 0)
   {
-    int err = NET_DVR_GetLastError();
-    printf("\n\nError %d\n%s\n\n", err, NET_DVR_GetErrorMsg(&err));
+    int err = error("Login error");
     NET_DVR_Cleanup();
     return 0 - err;
   }
@@ -63,9 +68,9 @@ void HLogout(int lUserID)
   NET_DVR_Cleanup();
 }
 
-int HMotionArea(int lUserID, struct MotionAreas *areas)
+int HMotionArea(int lUserID, struct MotionAreas *areas, int chno)
 {
-  int iChannelNO = 1;
+  int iChannelNO = chno;
   int iRet;
 
   //1.Get picture params.
@@ -75,7 +80,7 @@ int HMotionArea(int lUserID, struct MotionAreas *areas)
   iRet = NET_DVR_GetDVRConfig(lUserID, NET_DVR_GET_PICCFG_V40, iChannelNO, &struParams, sizeof(NET_DVR_PICCFG_V40), &uiReturnLen);
   if (!iRet)
   {
-    printf("NET_DVR_GET_PICCFG_V40 %d error.\n", NET_DVR_GetLastError());
+    error("NET_DVR_GET_PICCFG_V40");
     return 2;
   }
   // printf("Channel %d Name is %s.\n", iChannelNO, struParams.sChanName);
@@ -113,8 +118,7 @@ int HCaptureImage(int lUserID, int byStartChan, char *imagePath)
   iRet = NET_DVR_CaptureJPEGPicture(lUserID, byStartChan, &strPicPara, imagePath);
   if (!iRet)
   {
-    int err = NET_DVR_GetLastError();
-    printf("\n\nError %d\n%s\n\n", err, NET_DVR_GetErrorMsg(&err));
+    int err = error("Capture image error");
     NET_DVR_Cleanup();
     return 0 - err;
   }
@@ -140,7 +144,7 @@ int HListenAlarmV30(long lUserID, int alarmport, void (*AlarmCallback)(LONG lCom
   lHandle = NET_DVR_SetDVRMessageCallBack_V30(AlarmCallback, NULL);
   if (lHandle < 0)
   {
-    printf("NET_DVR_SetDVRMessageCallBack_V30 error, %d\n", NET_DVR_GetLastError());
+    error("NET_DVR_SetDVRMessageCallBack_V30");
     return -1;
   }
 
@@ -160,7 +164,7 @@ int HListenAlarmV30(long lUserID, int alarmport, void (*AlarmCallback)(LONG lCom
   //lHandle = NET_DVR_SetupAlarmChan_V30(lUserID);
   if (lHandle < 0)
   {
-    printf("NET_DVR_SetupAlarmChan_V30 error, %d\n", NET_DVR_GetLastError());
+    error("NET_DVR_SetupAlarmChan_V30");
     return -1;
   }
   // }
@@ -199,12 +203,12 @@ int HReboot(int user)
 {
   if (NET_DVR_RebootDVR(user) < 1)
   {
-    return 0 - NET_DVR_GetLastError();
+    return 0 - error("RebootDVR");
   }
   return 1;
 }
 
-int HListVideo(int lUserID, struct MotionVideos *videos)
+int HListVideo(int lUserID, struct MotionVideos *videos,int chno)
 {
   printf("List video.\n");
 
@@ -216,7 +220,7 @@ int HListVideo(int lUserID, struct MotionVideos *videos)
 
   NET_DVR_FILECOND_V50 m_struFileCondV50;
   memset(&m_struFileCondV50, 0, sizeof(NET_DVR_FILECOND_V50));
-  m_struFileCondV50.struStreamID.dwChannel = 1;
+  m_struFileCondV50.struStreamID.dwChannel = chno;
   // m_struFileCondV50.dwFileType = 0xff;
   m_struFileCondV50.dwFileType = 255;
 
@@ -238,7 +242,7 @@ int HListVideo(int lUserID, struct MotionVideos *videos)
 
   if (lFindHandle < 0)
   {
-    printf("find file fail,last error %d\n", NET_DVR_GetLastError());
+    error("Find file fail,last error");
     return 1;
   }
   NET_DVR_FINDDATA_V50 struFileData;
@@ -298,7 +302,7 @@ int HListVideo(int lUserID, struct MotionVideos *videos)
     }
     else
     {
-      printf("find file fail for illegal get file state\n");
+      printf("Find file fail for illegal get file state\n");
       break;
     }
 
@@ -311,21 +315,18 @@ int HListVideo(int lUserID, struct MotionVideos *videos)
 int HSaveFile(int userId, char *srcfile, char *destfile)
 {
   printf("Save %s\n", srcfile);
-  int bRes = 1;
 
   int hPlayback = 0;
   if ((hPlayback = NET_DVR_GetFileByName(userId, srcfile, destfile)) < 0)
   {
-    printf("GetFileByName failed. error[%d]\n", NET_DVR_GetLastError());
-    bRes = -1;
-    return bRes;
+    error("GetFileByName");
+    return -1;
   }
 
   if (!NET_DVR_PlayBackControl(hPlayback, NET_DVR_PLAYSTART, 0, NULL))
   {
-    printf("play back control failed [%d]\n", NET_DVR_GetLastError());
-    bRes = -1;
-    return bRes;
+    error("Playback control");
+    return -1;
   }
 
   int pos = 0;
@@ -344,18 +345,16 @@ int HSaveFile(int userId, char *srcfile, char *destfile)
 
   if (!NET_DVR_StopGetFile(hPlayback))
   {
-    printf("failed to stop get file [%d]\n", NET_DVR_GetLastError());
-    bRes = -1;
-    return bRes;
+    error("Stop get file");
+    return -1;
   }
 
   printf("%s\n", destfile);
 
   if (pos < 0 || pos > 100)
   {
-    printf("download err [%d]\n", NET_DVR_GetLastError());
-    bRes = -1;
-    return bRes;
+    error("Download");
+    return -1;
   }
   else
   {
