@@ -46,6 +46,13 @@ int HLogin(char *ip, int port, char *username, char *password, struct DevInfo *d
   devinfo->byChanNum = struDeviceInfoV40.struDeviceV30.byChanNum;
   devinfo->byStartDChan = struDeviceInfoV40.struDeviceV30.byStartDChan;
   devinfo->byDChanNum = struDeviceInfoV40.struDeviceV30.byHighDChanNum * 256 + struDeviceInfoV40.struDeviceV30.byIPChanNum;
+  
+  devinfo->sSerialNumber = (char *)struDeviceInfoV40.struDeviceV30.sSerialNumber;
+	devinfo->byDiskNum = struDeviceInfoV40.struDeviceV30.byDiskNum;
+	devinfo->byDVRType = struDeviceInfoV40.struDeviceV30.byDVRType;
+
+  // printf("byDVRType: %d\n",struDeviceInfoV40.struDeviceV30.byDVRType);
+  // printf("sSerialNumber: %s\n",struDeviceInfoV40.struDeviceV30.sSerialNumber);
 
   return lUserID;
 }

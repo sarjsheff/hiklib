@@ -8,6 +8,9 @@ extern "C"
 
   typedef struct DevInfo
   {
+    char *sSerialNumber;
+    int byDiskNum;
+    int byDVRType;
     int byZeroChanNum;
     int byStartChan;
     int byChanNum;

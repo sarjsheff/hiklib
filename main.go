@@ -30,11 +30,14 @@ import (
 )
 
 type DevInfo struct {
-	ByZeroChanNum int
-	ByStartChan int
-	ByChanNum int
-	ByStartDChan int
-	ByDChanNum int
+	SSerialNumber string // Device serial No.
+	ByDiskNum     int    // Number of HDDs
+	ByDVRType     int    // Device type
+	ByZeroChanNum int    // Number of channel-zero
+	ByStartChan   int    // Start No. of analog channel, which starts from 1.
+	ByChanNum     int    // Number of channels
+	ByStartDChan  int    // Start No. of digital channel, 0-no digital channel (e.g., DVR, network camera).
+	ByDChanNum    int    // Number of digital channels
 }
 
 type MotionVideos struct {
@@ -144,10 +147,13 @@ func HikLogin(ip string, port int, user, pass string) (int, DevInfo) {
 	u := C.HLogin(C.CString(ip), C.int(port), C.CString(user), C.CString(pass), &dev)
 	return int(u), DevInfo{
 		ByZeroChanNum: int(dev.byZeroChanNum),
-		ByStartChan: int(dev.byStartChan),
-		ByChanNum: int(dev.byChanNum),
-		ByStartDChan: int(dev.byStartDChan),
-		ByDChanNum: int(dev.byDChanNum),
+		ByStartChan:   int(dev.byStartChan),
+		ByChanNum:     int(dev.byChanNum),
+		ByStartDChan:  int(dev.byStartDChan),
+		ByDChanNum:    int(dev.byDChanNum),
+		SSerialNumber: C.GoString(dev.sSerialNumber),
+		ByDiskNum:     int(dev.byDiskNum),
+		ByDVRType:     int(dev.byDVRType),
 	}
 }
 
@@ -179,13 +185,13 @@ func HikCaptureImage(user int, byStartChan int, imagePath string) int {
 	return int(C.HCaptureImage(C.int(user), C.int(byStartChan), C.CString(imagePath)))
 }
 
-// 	C.OnAlarmV30(C.int(user), C.int(*alarmParam))
+// C.OnAlarmV30(C.int(user), C.int(*alarmParam))
 func HikOnAlarmV30(user int, alarmPort int, f OnMsg) {
 	Listeners = append(Listeners, f)
 	C.OnAlarmV30(C.int(user), C.int(alarmPort))
 }
 
-// 	C.OnAlarm(C.int(user), C.int(*alarmParam))
+// C.OnAlarm(C.int(user), C.int(*alarmParam))
 func HikOnAlarm(user int, alarmPort int, f OnMsg) {
 	Listeners = append(Listeners, f)
 	C.OnAlarm(C.int(user), C.int(alarmPort))
