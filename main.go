@@ -142,9 +142,13 @@ func HikVersion() string {
 
 // HikLogin - connect and login to camera
 func HikLogin(ip string, port int, user, pass string) (int, DevInfo) {
+	return HikLoginLog(ip, port, user, pass, 5)
+}
+
+func HikLoginLog(ip string, port int, user, pass string, loglevel int) (int, DevInfo) {
 	// var user = C.int(-1)
 	var dev = C.DevInfo{byStartChan: 0}
-	u := C.HLogin(C.CString(ip), C.int(port), C.CString(user), C.CString(pass), &dev)
+	u := C.HLogin(C.CString(ip), C.int(port), C.CString(user), C.CString(pass), &dev, C.int(loglevel))
 	return int(u), DevInfo{
 		ByZeroChanNum: int(dev.byZeroChanNum),
 		ByStartChan:   int(dev.byStartChan),

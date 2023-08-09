@@ -23,11 +23,15 @@ unsigned int HVersion(char *ret)
   return uiVersion;
 }
 
-int HLogin(char *ip, int port, char *username, char *password, struct DevInfo *devinfo)
+int HLogin(char *ip, int port, char *username, char *password, struct DevInfo *devinfo,int loglevel)
 {
   NET_DVR_Init();
-  NET_DVR_SetLogPrint(true);
-  NET_DVR_SetLogPrintAction(5, 1, 0, 0, 0);
+  if (loglevel > -1) {
+    NET_DVR_SetLogPrint(true);
+    NET_DVR_SetLogPrintAction(loglevel, 1, 0, 0, 0);
+  } else {
+    NET_DVR_SetLogPrint(false);
+  }
   NET_DVR_USER_LOGIN_INFO struLoginInfo = {0};
   NET_DVR_DEVICEINFO_V40 struDeviceInfoV40 = {0};
   struLoginInfo.bUseAsynLogin = false;

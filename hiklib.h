@@ -56,7 +56,7 @@ extern "C"
   } MotionAreas;
 
   unsigned int HVersion(char *ret);
-  int HLogin(char *ip, int port, char *username, char *password, struct DevInfo *devinfo);
+  int HLogin(char *ip, int port, char *username, char *password, struct DevInfo *devinfo,int loglevel);
   void HLogout(int lUserID);
   int HMotionArea(int lUserID, struct MotionAreas *areas, int chno);
   int HCaptureImage(int lUserID, int byStartChan, char *imagePath);
